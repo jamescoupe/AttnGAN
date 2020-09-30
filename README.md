@@ -27,6 +27,8 @@ In addition, please add the project folder to PYTHONPATH and `pip install` the f
 2. Download the [birds](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html) image data. Extract them to `data/birds/`
 3. Download [coco](http://cocodataset.org/#download) dataset and extract the images to `data/coco/`
 
+You can download the bird data using the script `download-bird-dataset.sh`. You will need `gdown` for that, make sure you run `pip install -r requirements.txt` before running it.
+
 
 
 **Training**
@@ -50,6 +52,8 @@ In addition, please add the project folder to PYTHONPATH and `pip install` the f
 
 - [AttnDCGAN for bird](https://drive.google.com/open?id=19TG0JUoXurxsmZLaJ82Yo6O0UJ6aDBpg). Download and save it to `models/`
   - This is an variant of AttnGAN which applies the propsoed attention mechanisms to DCGAN framework. 
+
+You can download the bird pretrained models using the script `download-bird-pretrained-model.sh`. You will need `gdown` for that, make sure you run `pip install -r requirements.txt` before running it.
 
 **Sampling**
 - Run `python main.py --cfg cfg/eval_bird.yml --gpu 1` to generate examples from captions in files listed in "./data/birds/example_filenames.txt". Results are saved to `DAMSMencoders/`. 

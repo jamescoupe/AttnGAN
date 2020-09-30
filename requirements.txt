@@ -4,6 +4,7 @@ cycler==0.10.0
 decorator==4.4.2
 easydict==1.9
 future==0.18.2
+gdown==3.12.2
 imageio==2.9.0
 joblib==0.16.0
 kiwisolver==1.2.0
