@@ -5,6 +5,8 @@ with Attentional Generative Adversarial Networks](http://openaccess.thecvf.com/c
 
 <img src="framework.png" width="900px" height="350px"/>
 
+You can find the Jupyter notebooks that break up the code on `code`.
+
 
 ### Dependencies
 python 2.7
