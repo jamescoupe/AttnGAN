@@ -24,6 +24,7 @@ import time
 import numpy as np
 import sys
 
+
 # ################# Text to image task############################ #
 class condGANTrainer(object):
     def __init__(self, output_dir, data_loader, n_words, ixtoword):
@@ -75,7 +76,7 @@ class condGANTrainer(object):
         # #######################generator and discriminators############## #
         netsD = []
         if cfg.GAN.B_DCGAN:
-            if cfg.TREE.BRANCH_NUM ==1:
+            if cfg.TREE.BRANCH_NUM == 1:
                 from model import D_NET64 as D_NET
             elif cfg.TREE.BRANCH_NUM == 2:
                 from model import D_NET128 as D_NET
@@ -160,13 +161,13 @@ class condGANTrainer(object):
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
         torch.save(netG.state_dict(),
-            '%s/netG_epoch_%d.pth' % (self.model_dir, epoch))
+                   '%s/netG_epoch_%d.pth' % (self.model_dir, epoch))
         load_params(netG, backup_para)
         #
         for i in range(len(netsD)):
             netD = netsD[i]
             torch.save(netD.state_dict(),
-                '%s/netD%d.pth' % (self.model_dir, i))
+                       '%s/netD%d.pth' % (self.model_dir, i))
         print('Save G/Ds models.')
 
     def set_requires_grad_value(self, models_list, brequires):
@@ -193,8 +194,8 @@ class condGANTrainer(object):
                                    attn_maps, att_sze, lr_imgs=lr_img)
             if img_set is not None:
                 im = Image.fromarray(img_set)
-                fullpath = '%s/G_%s_%d_%d.png'\
-                    % (self.image_dir, name, gen_iterations, i)
+                fullpath = '%s/G_%s_%d_%d.png' \
+                           % (self.image_dir, name, gen_iterations, i)
                 im.save(fullpath)
 
         # for i in range(len(netsD)):
@@ -211,8 +212,8 @@ class condGANTrainer(object):
                                captions, self.ixtoword, att_maps, att_sze)
         if img_set is not None:
             im = Image.fromarray(img_set)
-            fullpath = '%s/D_%s_%d.png'\
-                % (self.image_dir, name, gen_iterations)
+            fullpath = '%s/D_%s_%d.png' \
+                       % (self.image_dir, name, gen_iterations)
             im.save(fullpath)
 
     def train(self):
@@ -329,8 +330,8 @@ class condGANTrainer(object):
     def save_singleimages(self, images, filenames, save_dir,
                           split_dir, sentenceID=0):
         for i in range(images.size(0)):
-            s_tmp = '%s/single_samples/%s/%s' %\
-                (save_dir, split_dir, filenames[i])
+            s_tmp = '%s/single_samples/%s/%s' % \
+                    (save_dir, split_dir, filenames[i])
             folder = s_tmp[:s_tmp.rfind('/')]
             if not os.path.isdir(folder):
                 print('Make a new folder: ', folder)
@@ -357,7 +358,9 @@ class condGANTrainer(object):
             else:
                 netG = G_NET()
             netG.apply(weights_init)
-            netG.cuda()
+
+            if cfg.GPU_ID >= 0:
+                netG.cuda()
             netG.eval()
             #
             text_encoder = RNN_ENCODER(self.n_words, nhidden=cfg.TEXT.EMBEDDING_DIM)
@@ -365,13 +368,15 @@ class condGANTrainer(object):
                 torch.load(cfg.TRAIN.NET_E, map_location=lambda storage, loc: storage)
             text_encoder.load_state_dict(state_dict)
             print('Load text encoder from:', cfg.TRAIN.NET_E)
-            text_encoder = text_encoder.cuda()
+            if cfg.GPU_ID >= 0:
+                text_encoder = text_encoder.cuda()
             text_encoder.eval()
 
             batch_size = self.batch_size
             nz = cfg.GAN.Z_DIM
             noise = Variable(torch.FloatTensor(batch_size, nz), volatile=True)
-            noise = noise.cuda()
+            if cfg.GPU_ID >= 0:
+                noise = noise.cuda()
 
             model_dir = cfg.TRAIN.NET_G
             state_dict = \
@@ -440,7 +445,8 @@ class condGANTrainer(object):
                 torch.load(cfg.TRAIN.NET_E, map_location=lambda storage, loc: storage)
             text_encoder.load_state_dict(state_dict)
             print('Load text encoder from:', cfg.TRAIN.NET_E)
-            text_encoder = text_encoder.cuda()
+            if cfg.GPU_ID >= 0:
+                text_encoder = text_encoder.cuda()
             text_encoder.eval()
 
             # the path to save generated images
@@ -454,7 +460,8 @@ class condGANTrainer(object):
                 torch.load(model_dir, map_location=lambda storage, loc: storage)
             netG.load_state_dict(state_dict)
             print('Load G from: ', model_dir)
-            netG.cuda()
+            if cfg.GPU_ID >= 0:
+                netG.cuda()
             netG.eval()
             for key in data_dic:
                 save_dir = '%s/%s' % (s_tmp, key)
@@ -466,11 +473,13 @@ class condGANTrainer(object):
                 captions = Variable(torch.from_numpy(captions), volatile=True)
                 cap_lens = Variable(torch.from_numpy(cap_lens), volatile=True)
 
-                captions = captions.cuda()
-                cap_lens = cap_lens.cuda()
+                if cfg.GPU_ID >= 0:
+                    captions = captions.cuda()
+                    cap_lens = cap_lens.cuda()
                 for i in range(1):  # 16
                     noise = Variable(torch.FloatTensor(batch_size, nz), volatile=True)
-                    noise = noise.cuda()
+                    if cfg.GPU_ID >= 0:
+                        noise = noise.cuda()
                     #######################################################
                     # (1) Extract text embeddings
                     ######################################################
@@ -498,6 +507,7 @@ class condGANTrainer(object):
                             im = Image.fromarray(im)
                             fullpath = '%s_g%d.png' % (save_name, k)
                             im.save(fullpath)
+                            print("Fake image saved at ", fullpath)
 
                         for k in range(len(attention_maps)):
                             if len(fake_imgs) > 1:
@@ -514,4 +524,6 @@ class condGANTrainer(object):
                             if img_set is not None:
                                 im = Image.fromarray(img_set)
                                 fullpath = '%s_a%d.png' % (save_name, k)
+
+                                print("Attention map saved at ", fullpath)
                                 im.save(fullpath)

@@ -32,7 +32,8 @@ def drawCaption(convas, captions, ixtoword, vis_size, off1=2, off2=2):
     img_txt = Image.fromarray(convas)
     # get a font
     # fnt = None  # ImageFont.truetype('Pillow/Tests/fonts/FreeMono.ttf', 50)
-    fnt = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf', 50)
+    # fnt = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf', 50)
+    fnt = ImageFont.truetype("/System/Library/Fonts/SFNSMono.ttf", 50)
     # get a drawing context
     d = ImageDraw.Draw(img_txt)
     sentence_list = []
@@ -228,7 +229,8 @@ def build_super_images2(real_imgs, captions, cap_lens, ixtoword,
             if (vis_size // att_sze) > 1:
                 one_map = \
                     skimage.transform.pyramid_expand(one_map, sigma=20,
-                                                     upscale=vis_size // att_sze)
+                                                     upscale=vis_size // att_sze,
+                                                     multichannel=True)
             minV = one_map.min()
             maxV = one_map.max()
             one_map = (one_map - minV) / (maxV - minV)
