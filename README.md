@@ -56,7 +56,12 @@ You can download the bird data using the script `download-bird-dataset.sh`. You 
 You can download the bird pretrained models using the script `download-bird-pretrained-model.sh`. You will need `gdown` for that, make sure you run `pip install -r requirements.txt` before running it.
 
 **Sampling**
-- Run `python main.py --cfg cfg/eval_bird.yml --gpu 1` to generate examples from captions in files listed in "./data/birds/example_filenames.txt". Results are saved to `DAMSMencoders/`. 
+- Run `python main.py --cfg cfg/eval_bird.yml --gpu 1` to generate examples from captions in files listed in 
+`./data/birds/example_filenames.txt`. Results are saved to `DAMSMencoders/`. 
+- For sampling, be sure to set `TRAIN.FLAG` and `B_VALIDATION` to `False`. In case of executing the model on a CPU,
+set `--gpu` parameter to a negative value. The file `example_filenames.txt` should contain a list of files, where 
+each file has a one caption per line. After execution, `AttnGAN` will generate 3 image files (with different 
+qualities) and 2 attention maps.
 - Change the `eval_*.yml` files to generate images from other pre-trained models. 
 - Input your own sentence in "./data/birds/example_captions.txt" if you wannt to generate images from customized sentences. 
 
