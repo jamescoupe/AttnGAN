@@ -28,12 +28,12 @@ from torch.autograd import Variable
 import torch.backends.cudnn as cudnn
 import torchvision.transforms as transforms
 
-
 dir_path = (os.path.abspath(os.path.join(os.path.realpath(__file__), './.')))
 sys.path.append(dir_path)
 
-
 UPDATE_INTERVAL = 200
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a DAMSM network')
     parser.add_argument('--cfg', dest='cfg_file',
@@ -62,8 +62,7 @@ def train(dataloader, cnn_model, rnn_model, batch_size,
         cnn_model.zero_grad()
 
         imgs, captions, cap_lens, \
-            class_ids, keys = prepare_data(data)
-
+        class_ids, keys = prepare_data(data)
 
         # words_features: batch_size x nef x 17 x 17
         # sent_code: batch_size x nef
@@ -137,7 +136,7 @@ def evaluate(dataloader, cnn_model, rnn_model, batch_size):
     w_total_loss = 0
     for step, data in enumerate(dataloader, 0):
         real_imgs, captions, cap_lens, \
-                class_ids, keys = prepare_data(data)
+        class_ids, keys = prepare_data(data)
 
         words_features, sent_code = cnn_model(real_imgs[-1])
         # nef = words_features.size(1)
@@ -221,18 +220,19 @@ if __name__ == "__main__":
     now = datetime.datetime.now(dateutil.tz.tzlocal())
     timestamp = now.strftime('%Y_%m_%d_%H_%M_%S')
     output_dir = '../output/%s_%s_%s' % \
-        (cfg.DATASET_NAME, cfg.CONFIG_NAME, timestamp)
+                 (cfg.DATASET_NAME, cfg.CONFIG_NAME, timestamp)
 
     model_dir = os.path.join(output_dir, 'Model')
     image_dir = os.path.join(output_dir, 'Image')
     mkdir_p(model_dir)
     mkdir_p(image_dir)
 
-    torch.cuda.set_device(cfg.GPU_ID)
-    cudnn.benchmark = True
+    if cfg.GPU_ID >= 0:
+        torch.cuda.set_device(cfg.GPU_ID)
+        cudnn.benchmark = True
 
     # Get data loader ##################################################
-    imsize = cfg.TREE.BASE_SIZE * (2 ** (cfg.TREE.BRANCH_NUM-1))
+    imsize = cfg.TREE.BASE_SIZE * (2 ** (cfg.TREE.BRANCH_NUM - 1))
     batch_size = cfg.TRAIN.BATCH_SIZE
     image_transform = transforms.Compose([
         transforms.Scale(int(imsize * 76 / 64)),
@@ -242,7 +242,7 @@ if __name__ == "__main__":
                           base_size=cfg.TREE.BASE_SIZE,
                           transform=image_transform)
 
-    print(dataset.n_words, dataset.embeddings_num)
+    print("Number of words: ", dataset.n_words, "Number of embeddings", dataset.embeddings_num)
     assert dataset
     dataloader = torch.utils.data.DataLoader(
         dataset, batch_size=batch_size, drop_last=True,
@@ -280,11 +280,11 @@ if __name__ == "__main__":
                       '{:5.2f} {:5.2f} | lr {:.5f}|'
                       .format(epoch, s_loss, w_loss, lr))
             print('-' * 89)
-            if lr > cfg.TRAIN.ENCODER_LR/10.:
+            if lr > cfg.TRAIN.ENCODER_LR / 10.:
                 lr *= 0.98
 
             if (epoch % cfg.TRAIN.SNAPSHOT_INTERVAL == 0 or
-                epoch == cfg.TRAIN.MAX_EPOCH):
+                    epoch == cfg.TRAIN.MAX_EPOCH):
                 torch.save(image_encoder.state_dict(),
                            '%s/image_encoder%d.pth' % (model_dir, epoch))
                 torch.save(text_encoder.state_dict(),
