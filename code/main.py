@@ -38,13 +38,13 @@ def gen_example(wordtoix, algo):
     from nltk.tokenize import RegexpTokenizer
     filepath = '%s/example_filenames.txt' % (cfg.DATA_DIR)
     data_dic = {}
-    with open(filepath, "r") as f:
+    with open(filepath, "rb") as f:
         filenames = f.read().decode('utf8').split('\n')
         for name in filenames:
             if len(name) == 0:
                 continue
             filepath = '%s/%s.txt' % (cfg.DATA_DIR, name)
-            with open(filepath, "r") as f:
+            with open(filepath, "rb") as f:
                 print('Load from:', name)
                 sentences = f.read().decode('utf8').split('\n')
                 # a list of indices for a sentence
